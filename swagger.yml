@@ -1,0 +1,195 @@
+swagger: "2.0"
+info:
+  description: API to list create and delete forwards
+  version: "1.0.0"
+  title: Forward API
+consumes:
+  - "application/json"
+produces:
+  - "application/json"
+
+host: api.forwards.hostnetbv.nl
+
+basePath: /v1
+
+securityDefinitions:
+  basicAuth:
+    type: basic
+    x-basicInfoFunc: security.verify
+
+# Paths supported by the server application
+paths:
+  /forwards:
+    get:
+      operationId: forwards.read
+      tags:
+        - Forward
+      summary: The forward data structure supported by the server application
+      description: Read the list of forwards
+      responses:
+        200:
+          description: Successful read forward list operation
+          schema:
+            type: array
+            items:
+              properties:
+                rowid:
+                  type: integer
+                bron:
+                  type: string
+                doel:
+                  type: string
+                methode:
+                  type: string
+                timestamp:
+                  type: string
+    post:
+      security:
+      - basicAuth: []
+      operationId: forwards.post
+      tags:
+        - Forward
+      summary: Create new forward
+      description: Create new forward in database
+      parameters:
+        - name: forward
+          in: body
+          description: Forward to create
+          required: True
+          schema:
+            type: object
+            properties:
+              bron:
+                type: string
+                description: Source address of forward
+              doel:
+                type: string
+                description: Target address of forward
+              methode:
+                type: string
+                description: Target address of forward
+                enum: ['301', frame]
+      responses:
+        201:
+          description: New forward created!
+          schema:
+            properties:
+              bron:
+                type: string
+                description: Source of the forward
+              doel:
+                type: string
+                description: Target of the forward
+              methode:
+                type: string
+                description: Method of forwarding
+
+  /forwards/{id}:
+    get:
+      operationId: forwards.readone
+      tags:
+        - Forward
+      summary: The forward data structure supported by the server application
+      description: Read the list of forwards
+      parameters:
+        - name: id
+          in: path
+          type: integer
+          required: True
+      responses:
+        200:
+          description: Successful read forward list operation
+          schema:
+            type: array
+            items:
+              properties:
+                rowid:
+                  type: integer
+                bron:
+                  type: string
+                doel:
+                  type: string
+                methode:
+                  type: string
+                timestamp:
+                  type: string
+    put:
+      security:
+      - basicAuth: []
+      operationId: forwards.update
+      tags:
+        - Forward
+      summary: Update Forward
+      description: Update Forward
+      parameters:
+        - name: id
+          in: path
+          type: integer
+          required: True
+        - name: forward
+          in: body
+          description: Data for forward
+          required: True
+          schema:
+            type: object
+            properties:
+              bron:
+                type: string
+                description: Source address of forward
+              doel:
+                type: string
+                description: Target address of forward
+              methode:
+                type: string
+                description: Target address of forward
+                enum: ['301', frame]
+      responses:
+        200:
+          description: Successful read forward list operation
+          schema:
+            type: array
+            items:
+              properties:
+                rowid:
+                  type: integer
+                bron:
+                  type: string
+                doel:
+                  type: string
+                methode:
+                  type: string
+                timetamp:
+                  type: string
+    delete:
+      security:
+        - basicAuth: []
+      operationId: forwards.delete
+      tags:
+        - Forward
+      summary: Delete a forward
+      description: Delete a forward
+      parameters:
+        - name: id
+          in: path
+          type: integer
+          required: True
+      responses:
+        200:
+          description: Successfully deleted a forward
+  /rewind:
+    put:
+      security:
+        - basicAuth: []
+      operationId: forwards.rewind
+      tags:
+        - Forward
+      summary: Rewind the forward data structure
+      description: Rewind the forward data structure
+      parameters:
+        - name: timestamp
+          in: query
+          type: number
+          required: True
+      responses:
+        200:
+          description: Successfully rewinded
