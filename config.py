@@ -17,7 +17,7 @@ connex_app = connexion.App(__name__, specification_dir=basedir)
 app = connex_app.app
 
 app.config['SQLALCHEMY_ECHO'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://api:password@mysql.forwards.hostnetbv.nl/forward'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://api:password@localhost/forward'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
