@@ -9,7 +9,7 @@ import time
 def read():
     forwards = Forward.query.all()
     forwardschema = ForwardSchema(many=True)
-    data = { 'forwards': forwardschema.dump(forwards) }
+    data = {'forwards': forwardschema.dump(forwards)}
     return data
 
 
@@ -28,7 +28,7 @@ def post(forward):
     doel = forward.get("doel", None)
     forward.update({'timestamp': time.time()})
 
-    exists = Forward.query.filter(Forward.bron == bron).one_or_none()
+    exists = Forward.query.filter(Forward.bron == bron).filter(Forward.provision == 'present').one_or_none()
     if exists is None:
         loop = Forward.query.filter(Forward.bron == doel).filter(Forward.doel == bron).one_or_none()
         if loop is None:
@@ -47,7 +47,6 @@ def update(id, forward):
     rowid = id
     bron = forward.get('bron', None)
     doel = forward.get('doel', None)
-    methode = forward.get('methode', None)
 
     exists = Forward.query.filter(Forward.rowid == rowid).one_or_none()
     if exists is None:
@@ -69,9 +68,9 @@ def update(id, forward):
 def delete(id):
     forward = Forward.query.filter(Forward.rowid == id).one_or_none()
     if forward is not None:
-        db.session.delete(forward)
+        Forward.query.filter(Forward.rowid == id).update({'provision': 'absent'})
         db.session.commit()
-        return make_response("Forward {id} is deleted.".format(id=id), 200)
+        return make_response("Forward {id} is archived.".format(id=id), 200)
     else:
         abort(404, "Forward {id} does not exist.".format(id=id))
 
@@ -80,10 +79,11 @@ def rewind(timestamp):
     forwards = Forward.query.filter(Forward.timestamp > timestamp).all()
     deleted = []
     for forward in forwards:
-        db.session.delete(forward)
+        forward.provision = 'absent'
+        db.session.merge(forward)
         db.session.commit()
         deleted.append(forward.bron)
-    return make_response("Forward {deleted} is deleted.".format(deleted=str(deleted)), 200)
+    return make_response("Archived: {deleted}".format(deleted=str(deleted)), 200)
 
 
 basedir = os.path.abspath(os.path.dirname(__file__))

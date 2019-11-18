@@ -6,4 +6,4 @@ marshmallow
 marshmallow-sqlalchemy
 connexion
 connexion[swagger-ui]
-PyMySQL
+pymysql
