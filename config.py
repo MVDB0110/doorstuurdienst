@@ -7,7 +7,7 @@ import configparser
 config = configparser.ConfigParser()
 if os.path.isfile('config.ini') is False:
     config['DEFAULT'] = {'Bind': '0.0.0.0',
-                         'Port': '443'}
+                         'Port': '5000'}
     with open('config.ini', 'w') as configfile:
         config.write(configfile)
 config.read('config.ini')
