@@ -26,6 +26,7 @@ def readone(id):
 def post(forward):
     bron = forward.get("bron", None)
     doel = forward.get("doel", None)
+    forward.update({'timestamp': time.time()})
 
     archiveforwards = Forward.query.filter(Forward.bron == bron).filter(Forward.provision == 'absent').filter(Forward.archive == 'n').all()
     for archiveforward in archiveforwards:
