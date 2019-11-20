@@ -8,6 +8,7 @@ class Forward(db.Model):
     doel = db.Column(db.String(32))
     methode = db.Column(db.String(32))
     provision = db.Column(db.String(32), default='present')
+    archive = db.Column(db.String(32), default='n')
     timestamp = db.Column(db.Float)
 
 

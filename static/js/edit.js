@@ -145,7 +145,15 @@ ns.view = (function() {
             $('table > tbody').empty();
             if (forwards) {
                 for (let i=0, l=forwards['forwards'].length; i < l; i++) {
-                  rows += `<tr data-forward-id="${forwards['forwards'][i.toString()]['rowid']}"><td class="rowid">${forwards['forwards'][i.toString()]['rowid']}</td><td class="bron">${forwards['forwards'][i.toString()]['bron']}</td><td class="doel">${forwards['forwards'][i.toString()]['doel']}</td><td class="methode">${forwards['forwards'][i.toString()]['methode']}</td><td class="timestamp">${forwards['forwards'][i.toString()]['timestamp']}</td><td class="provision">${forwards['forwards'][i.toString()]['provision']}</td><td><button class="delete btn btn-danger">Verwijder</button></td></tr>`;
+                  if (forwards['forwards'][i.toString()]['archive'] == 'n' && forwards['forwards'][i.toString()]['provision'] == 'present') {
+                    rows += `<tr data-forward-id="${forwards['forwards'][i.toString()]['rowid']}"><td class="rowid">${forwards['forwards'][i.toString()]['rowid']}</td><td class="bron">${forwards['forwards'][i.toString()]['bron']}</td><td class="doel">${forwards['forwards'][i.toString()]['doel']}</td><td class="methode">${forwards['forwards'][i.toString()]['methode']}</td><td class="timestamp">${forwards['forwards'][i.toString()]['timestamp']}</td><td class="provision">${forwards['forwards'][i.toString()]['provision']}</td><td><button class="delete btn btn-warning">Archive</button></td></tr>`;
+                  }
+                  if (forwards['forwards'][i.toString()]['archive'] == 'y') {
+                    rows += `<tr data-forward-id="${forwards['forwards'][i.toString()]['rowid']}"><td class="rowid">${forwards['forwards'][i.toString()]['rowid']}</td><td class="bron">${forwards['forwards'][i.toString()]['bron']}</td><td class="doel">${forwards['forwards'][i.toString()]['doel']}</td><td class="methode">${forwards['forwards'][i.toString()]['methode']}</td><td class="timestamp">${forwards['forwards'][i.toString()]['timestamp']}</td><td class="provision">${forwards['forwards'][i.toString()]['provision']}</td><td><button class="delete btn btn-danger">Verwijder</button></td></tr>`;
+                  }
+                  if (forwards['forwards'][i.toString()]['archive'] == 'n' && forwards['forwards'][i.toString()]['provision'] == 'absent') {
+                    rows += `<tr data-forward-id="${forwards['forwards'][i.toString()]['rowid']}"><td class="rowid">${forwards['forwards'][i.toString()]['rowid']}</td><td class="bron">${forwards['forwards'][i.toString()]['bron']}</td><td class="doel">${forwards['forwards'][i.toString()]['doel']}</td><td class="methode">${forwards['forwards'][i.toString()]['methode']}</td><td class="timestamp">${forwards['forwards'][i.toString()]['timestamp']}</td><td class="provision">${forwards['forwards'][i.toString()]['provision']}</td><td><button class="delete btn btn-success">Activate</button></td></tr>`;
+                  }
                 }
                 $('table > tbody').append(rows);
             }
