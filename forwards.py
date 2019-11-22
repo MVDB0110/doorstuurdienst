@@ -6,6 +6,18 @@ from models import Forward, ForwardSchema
 import time
 
 
+def archive(id):
+    active = Forward.query.filter(Forward.rowid == id).filter(Forward.archive == 'n').filter(Forward.provision == 'present').one_or_none()
+    deactivated = Forward.query.filter(Forward.rowid == id).filter(Forward.archive == 'n').filter(Forward.provision == 'absent').one_or_none()
+    if active is not None:
+        Forward.query.filter(Forward.rowid == id).filter(Forward.provision == 'present').update({'provision': 'absent'})
+        db.session.commit()
+        return make_response("Forward {id} is archived.".format(id=id), 200)
+    elif deactivated is not None:
+        Forward.query.filter(Forward.rowid == id).filter(Forward.provision == 'absent').update({'provision': 'present'})
+        db.session.commit()
+        return make_response("Forward {id} is reactivated.".format(id=id), 200)
+
 def read():
     forwards = Forward.query.all()
     forwardschema = ForwardSchema(many=True)
@@ -72,19 +84,9 @@ def update(id, forward):
 
 
 def delete(id):
-    active = Forward.query.filter(Forward.rowid == id).filter(Forward.provision == 'present').one_or_none()
-    deactivated = Forward.query.filter(Forward.rowid == id).filter(Forward.archive == 'n').filter(Forward.provision == 'absent').one_or_none()
-    archived = Forward.query.filter(Forward.rowid == id).filter(Forward.provision == 'absent').filter(Forward.archive == 'y').one_or_none()
-    if active is not None:
-        Forward.query.filter(Forward.rowid == id).filter(Forward.provision == 'present').update({'provision': 'absent'})
-        db.session.commit()
-        return make_response("Forward {id} is archived.".format(id=id), 200)
-    elif deactivated is not None:
-        Forward.query.filter(Forward.rowid == id).filter(Forward.provision == 'absent').update({'provision': 'present'})
-        db.session.commit()
-        return make_response("Forward {id} is reactivated.".format(id=id), 200)
-    elif archived is not None:
-        db.session.delete(archived)
+    exists = Forward.query.filter(Forward.rowid == id).one_or_none()
+    if exists is not None:
+        db.session.delete(exists)
         db.session.commit()
         return make_response("Forward {id} is deleted.".format(id=id), 200)
     else:
@@ -92,7 +94,7 @@ def delete(id):
 
 
 def rewind(timestamp):
-    forwards = Forward.query.filter(Forward.timestamp > timestamp).all()
+    forwards = Forward.query.filter(Forward.timestamp > timestamp).filter(Forward.provision == 'present').all()
     deleted = []
     for forward in forwards:
         forward.provision = 'absent'

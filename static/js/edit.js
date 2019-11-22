@@ -5,7 +5,8 @@
 
 // Create the namespace instance
 let ns = {};
-
+var rew = 0;
+var ed = 0;
 // Create the model instance
 ns.model = (function() {
     'use strict';
@@ -98,7 +99,27 @@ ns.model = (function() {
             var password = prompt("Password");
             let ajax_options = {
                 type: 'PUT',
-                url: `v1/rewind?timestamp=${timestamp}`,
+                url: `v1/archive?timestamp=${timestamp}`,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader ("Authorization", "Basic " + btoa(user + ":" + password));
+                },
+                accepts: 'application/json',
+                contentType: 'plain/text'
+            };
+            $.ajax(ajax_options)
+            .done(function(data) {
+                $event_pump.trigger('model_delete_success', [data]);
+            })
+            .fail(function(xhr, textStatus, errorThrown) {
+                $event_pump.trigger('model_error', [xhr, textStatus, errorThrown]);
+            })
+        },
+        'archive': function(id) {
+            var user = prompt("Username");
+            var password = prompt("Password");
+            let ajax_options = {
+                type: 'PUT',
+                url: `v1/archive/${id}`,
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader ("Authorization", "Basic " + btoa(user + ":" + password));
                 },
@@ -146,13 +167,17 @@ ns.view = (function() {
             if (forwards) {
                 for (let i=0, l=forwards['forwards'].length; i < l; i++) {
                   if (forwards['forwards'][i.toString()]['archive'] == 'n' && forwards['forwards'][i.toString()]['provision'] == 'present') {
-                    rows += `<tr data-forward-id="${forwards['forwards'][i.toString()]['rowid']}"><td class="rowid">${forwards['forwards'][i.toString()]['rowid']}</td><td class="bron">${forwards['forwards'][i.toString()]['bron']}</td><td class="doel">${forwards['forwards'][i.toString()]['doel']}</td><td class="methode">${forwards['forwards'][i.toString()]['methode']}</td><td class="timestamp">${forwards['forwards'][i.toString()]['timestamp']}</td><td class="provision">${forwards['forwards'][i.toString()]['provision']}</td><td><button class="delete btn btn-warning">Archive</button></td></tr>`;
+                    rows += `<tr class="table-success" data-forward-id="${forwards['forwards'][i.toString()]['rowid']}"><td class="rowid">${forwards['forwards'][i.toString()]['rowid']}</td><td class="bron">${forwards['forwards'][i.toString()]['bron']}</td><td class="doel">${forwards['forwards'][i.toString()]['doel']}</td><td class="methode">${forwards['forwards'][i.toString()]['methode']}</td><td class="timestamp">${forwards['forwards'][i.toString()]['timestamp']}</td><td class="provision">${forwards['forwards'][i.toString()]['provision']}</td><td><button class="archive btn btn-warning">Archive</button></td></tr>`;
                   }
-                  if (forwards['forwards'][i.toString()]['archive'] == 'y') {
-                    rows += `<tr data-forward-id="${forwards['forwards'][i.toString()]['rowid']}"><td class="rowid">${forwards['forwards'][i.toString()]['rowid']}</td><td class="bron">${forwards['forwards'][i.toString()]['bron']}</td><td class="doel">${forwards['forwards'][i.toString()]['doel']}</td><td class="methode">${forwards['forwards'][i.toString()]['methode']}</td><td class="timestamp">${forwards['forwards'][i.toString()]['timestamp']}</td><td class="provision">${forwards['forwards'][i.toString()]['provision']}</td><td><button class="delete btn btn-danger">Verwijder</button></td></tr>`;
-                  }
+                }
+                for (let i=0, l=forwards['forwards'].length; i < l; i++) {
                   if (forwards['forwards'][i.toString()]['archive'] == 'n' && forwards['forwards'][i.toString()]['provision'] == 'absent') {
-                    rows += `<tr data-forward-id="${forwards['forwards'][i.toString()]['rowid']}"><td class="rowid">${forwards['forwards'][i.toString()]['rowid']}</td><td class="bron">${forwards['forwards'][i.toString()]['bron']}</td><td class="doel">${forwards['forwards'][i.toString()]['doel']}</td><td class="methode">${forwards['forwards'][i.toString()]['methode']}</td><td class="timestamp">${forwards['forwards'][i.toString()]['timestamp']}</td><td class="provision">${forwards['forwards'][i.toString()]['provision']}</td><td><button class="delete btn btn-success">Activate</button></td></tr>`;
+                    rows += `<tr class="table-warning" data-forward-id="${forwards['forwards'][i.toString()]['rowid']}"><td class="rowid">${forwards['forwards'][i.toString()]['rowid']}</td><td class="bron">${forwards['forwards'][i.toString()]['bron']}</td><td class="doel">${forwards['forwards'][i.toString()]['doel']}</td><td class="methode">${forwards['forwards'][i.toString()]['methode']}</td><td class="timestamp">${forwards['forwards'][i.toString()]['timestamp']}</td><td class="provision">${forwards['forwards'][i.toString()]['provision']}</td><td><button class="archive btn btn-success">Activate</button></td></tr>`;
+                  }
+                }
+                for (let i=0, l=forwards['forwards'].length; i < l; i++) {
+                  if (forwards['forwards'][i.toString()]['archive'] == 'y') {
+                    rows += `<tr class="table-danger" data-forward-id="${forwards['forwards'][i.toString()]['rowid']}"><td class="rowid">${forwards['forwards'][i.toString()]['rowid']}</td><td class="bron">${forwards['forwards'][i.toString()]['bron']}</td><td class="doel">${forwards['forwards'][i.toString()]['doel']}</td><td class="methode">${forwards['forwards'][i.toString()]['methode']}</td><td class="timestamp">${forwards['forwards'][i.toString()]['timestamp']}</td><td class="provision">${forwards['forwards'][i.toString()]['provision']}</td><td><button class="delete btn btn-danger">Verwijder</button></td></tr>`;
                   }
                 }
                 $('table > tbody').append(rows);
@@ -192,6 +217,10 @@ ns.controller = (function(m, v) {
         return bron !== "" && doel !== "" && methode !== "" && bron !== doel;
     }
 
+    function validateTimestamp(timestamp) {
+        return timestamp !== "";
+    }
+
     // Create our event handlers
     $('#create').click(function(e) {
         let bron = $bron.val(),
@@ -201,6 +230,8 @@ ns.controller = (function(m, v) {
         e.preventDefault();
 
         if (validate(bron, doel, methode)) {
+            ed = 0;
+            rew = 0;
             model.create({
                 'bron': bron,
                 'doel': doel,
@@ -218,11 +249,18 @@ ns.controller = (function(m, v) {
             methode = $methode.val();
 
         e.preventDefault();
-        model.update(rowid, {
-            bron: bron,
-            doel: doel,
-            methode: methode,
-        })
+
+        if (validate(bron, doel, methode)) {
+            ed = 0;
+            rew = 0;
+            model.update(rowid, {
+                bron: bron,
+                doel: doel,
+                methode: methode,
+            })
+        } else {
+            alert('Problem with input');
+        }
     });
 
     $('#reset').click(function() {
@@ -230,18 +268,39 @@ ns.controller = (function(m, v) {
     })
 
     $('#showeditor').click(function() {
-        $('#editor').show();
-        $('#rewinder').hide();
+        if (ed == 0) {
+          $('#editor').show();
+          $('#rewinder').hide();
+          ed = 1;
+          rew = 0;
+        } else {
+          $('#editor').hide();
+          $('#rewinder').hide();
+          ed = 0;
+        }
     })
 
     $('#showrewinder').click(function() {
-        $('#editor').hide();
-        $('#rewinder').show();
+        if (rew == 0) {
+          $('#editor').hide();
+          $('#rewinder').show();
+          rew = 1;
+          ed = 0;
+        } else {
+          $('#editor').hide();
+          $('#rewinder').hide();
+          rew = 0;
+        }
     })
 
     $('#rewind').click(function() {
         let rewindval = $rewindval.val();
-        model.rewind(rewindval);
+
+        if (validateTimestamp(rewindval)) {
+            model.rewind(rewindval);
+        } else {
+            alert('Problem with input');
+        }
     })
 
     $('table > tbody').on('dblclick', 'tr', function(e) {
@@ -291,6 +350,18 @@ ns.controller = (function(m, v) {
             .attr('data-forward-id');
 
         model.delete(rowid)
+    });
+
+    $(document).on('click', '.archive', function(e) {
+        let $target = $(e.target),
+            rowid;
+
+        rowid = $target
+            .parent()
+            .parent()
+            .attr('data-forward-id');
+
+        model.archive(rowid)
     });
 
     // Handle the model events

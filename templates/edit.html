@@ -59,53 +59,10 @@
     </div>
   </nav>
 
-  <!-- Editor -->
-  <div id='editor' class="container">
-    <input id="rowid" type="hidden" value="" />
-    <div class="input-group mb-3">
-      <div class="input-group-prepend">
-        <span class="input-group-text">Bronadres</span>
-      </div>
-      <input id="bron" type="text" />
-    </div>
-    <div class="input-group mb-3">
-      <div class="input-group-prepend">
-        <span class="input-group-text">Doeladres</span>
-      </div>
-      <input id="doel" type="text" />
-    </div>
-    <div class="input-group mb-3">
-      <div class="input-group-prepend">
-        <span class="input-group-text">Doorstuurmethode</span>
-      </div>
-      <input id="methode" type="text" />
-    </div>
-    <div>
-      <button class="btn btn-primary" id="create">Aanmaken</button>
-      <button class="btn btn-primary" id="reset">Reset</button>
-      <button class="btn btn-primary" id="update">Update</button>
-    </div>
-  </div>
-
-  <!-- Rewinder -->
-  <div id='rewinder' class="container">
-    <input id="rowid" type="hidden" value="" />
-    <div class="input-group mb-3">
-      <div class="input-group-prepend">
-        <span class="input-group-text">Unix Epoch</span>
-      </div>
-      <input id="rewindval" type="text" />
-    </div>
-    <div>
-      <button class="btn btn-primary" id="rewind">Pas toe</button>
-    </div>
-  </div>
-
   <!-- Page Content -->
   <div id='tabel' class="container">
-    <table class="table table-striped table-hover table-bordered">
-      <caption>Forwards</caption>
-      <thead>
+    <table class="table table-striped table-hover">
+      <thead class="thead-dark">
         <tr>
           <th scope='col'>RowID</th>
           <th scope='col'>Bronadres</th>
@@ -119,6 +76,44 @@
       <tbody>
       </tbody>
     </table>
+  </div>
+  <!-- Editor -->
+  <div id='editor' class="container">
+    <ul class='list-group-flush'>
+      <input id="rowid" type="hidden" value="" />
+      <li class="list-group-item">
+        <div class="input-group mb-3">
+          <input class="form-control" placeholder="Bronadres" id="bron" type="text" />
+        </div>
+      </li>
+      <li class="list-group-item">
+        <div class="input-group mb-3">
+          <input class="form-control" placeholder="Doeladres" id="doel" type="text" />
+        </div>
+      </li>
+      <li class="list-group-item">
+        <div class="input-group mb-3">
+          <input class="form-control" placeholder="Doorstuurmethode" id="methode" type="text" />
+        </div>
+      </li>
+      <li class="list-group-item">
+        <div>
+          <button class="btn btn-outline-secondary float-left" id="reset">Reset</button>
+          <button class="btn btn-outline-secondary float-right" id="create">Aanmaken</button>
+          <button class="btn btn-outline-secondary float-right" id="update">Update</button>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Rewinder -->
+  <div id='rewinder' class="container">
+    <div class="input-group mb-3">
+      <input type="text" class="form-control" placeholder="Unix Epoch" aria-label="Unix Epoch" aria-describedby="basic-addon2" id="rewindval" />
+      <div class="input-group-append">
+        <button class="btn btn-outline-secondary" type="button" id="rewind">Pas toe</button>
+      </div>
+    </div>
   </div>
 </body>
 <script src="static/js/edit.js"></script>

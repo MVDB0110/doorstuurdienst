@@ -176,7 +176,7 @@ paths:
       responses:
         200:
           description: Successfully deleted a forward
-  /rewind:
+  /archive:
     put:
       security:
         - basicAuth: []
@@ -193,3 +193,20 @@ paths:
       responses:
         200:
           description: Successfully rewinded
+  /archive/{id}:
+    put:
+      security:
+        - basicAuth: []
+      operationId: forwards.archive
+      tags:
+        - Forward
+      summary: Archive or activate a forward
+      description: Archive or activate a forward
+      parameters:
+        - name: id
+          in: path
+          type: integer
+          required: True
+      responses:
+        200:
+          description: Successfull.
