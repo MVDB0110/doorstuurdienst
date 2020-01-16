@@ -9,8 +9,6 @@ var rew = 0;
 var ed = 0;
 // Create the model instance
 ns.model = (function() {
-    'use strict';
-
     let $event_pump = $('body');
 
     // Return the API
@@ -139,8 +137,6 @@ ns.model = (function() {
 
 // Create the view instance
 ns.view = (function() {
-    'use strict';
-
     let $rowid = $('#rowid'),
         $bron = $('#bron'),
         $doel = $('#doel'),
