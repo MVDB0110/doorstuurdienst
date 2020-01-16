@@ -192,8 +192,6 @@ ns.view = (function() {
 
 // Create the controller
 ns.controller = (function(m, v) {
-    'use strict';
-
     let model = m,
         view = v,
         $event_pump = $('body'),
